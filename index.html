@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>UI for the Emoji Tracker</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.8/c3.min.css" integrity="sha256-loJlaQZlNV5TexzLFHJ6fGO6PCjUQk4isWOG/7YffC4=" crossorigin="anonymous" />
+
+</head>
+<body>
+<div id="chart"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js" integrity="sha256-j1Aj4cWdqKW14YC7Hav1HCCdvLGSAkP/wF5HBUc7nf0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.8/c3.min.js" integrity="sha256-N10MWEM8r2dC0bw4GafCShV+f23skko9fL5mIGcGd4A=" crossorigin="anonymous"></script>
+
+<script>
+const BASE_URL = "http://emoji-tracker-emoji-tracker.b9ad.pro-us-east-1.openshiftapps.com";
+
+const refreshChart = () => {
+  fetch(`${BASE_URL}/emojis`)
+    .then(resp => resp.json())
+    .then(data => {
+      // sort data for aesthetics
+      let sorted = [];
+      for (let emoji in data) {
+        sorted.push([emoji, data[emoji]]);
+      }
+      sorted.sort((a,b) => a[1]>b[1] ? -1 : 1);
+      let values = ["Emoji Count"];
+      sorted.map(i => values.push(i[1]));
+      let chartData = {
+        types: {
+          "Emoji Count": "bar"
+        },
+        columns: [values]
+      };
+      let chartAxis = {
+        rotated: true,
+        x: {
+          type: "category",
+          categories: sorted.map(i => i[0])
+        }
+      };
+      let chart = c3.generate({
+        bindto: "#chart",
+        data: chartData,
+        axis: chartAxis
+      });
+    })
+    .then(_ => {
+      setTimeout(refreshChart, 3000);
+    });
+};
+
+let chart = c3.generate({
+  bindto: "#chart",
+  data: {
+    types: {
+      "Emoji Count": "bar"
+    },
+    columns: [
+      ["Emoji Count"]
+    ]
+  },
+  axis: {
+    rotated: true,
+    x: {
+      type: "category",
+      categories: []
+    }
+  }
+});
+
+refreshChart();
+
+</script>
+</body>
+</html>
