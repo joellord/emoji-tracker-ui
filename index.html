@@ -7,6 +7,7 @@
 </head>
 <body>
 <div id="chart"></div>
+<div id="keywords" style="height: 80%"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js" integrity="sha256-j1Aj4cWdqKW14YC7Hav1HCCdvLGSAkP/wF5HBUc7nf0=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.8/c3.min.js" integrity="sha256-N10MWEM8r2dC0bw4GafCShV+f23skko9fL5mIGcGd4A=" crossorigin="anonymous"></script>
@@ -39,10 +40,9 @@ const refreshChart = () => {
           categories: sorted.map(i => i[0])
         }
       };
-      let chart = c3.generate({
-        bindto: "#chart",
-        data: chartData,
-        axis: chartAxis
+      chart.load({
+        categories: sorted.map(i=>i[0]),
+        columns: [values]
       });
     })
     .then(_ => {
@@ -66,10 +66,19 @@ let chart = c3.generate({
       type: "category",
       categories: []
     }
+  },
+  size: {
+    height: "600px"
   }
 });
 
 refreshChart();
+
+fetch(`${BASE_URL}/keywords`)
+  .then(resp => resp.json())
+  .then(data => {
+    document.querySelector("#keywords").innerText = `Tracked keywords: ${data.join(", ")}`;
+  });
 
 </script>
 </body>
