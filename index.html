@@ -49,7 +49,6 @@ const refreshChart = () => {
         const diff = sorted.length - num;
         sorted.splice(sorted.length - diff, diff);
         values.splice(values.length - diff, diff);
-        console.log(sorted.length, values.length);
       }
 
       chart.load({
