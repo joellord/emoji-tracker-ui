@@ -7,7 +7,8 @@
 </head>
 <body>
 <div id="chart"></div>
-<div id="keywords" style="height: 80%"></div>
+<div id="keywords" style="height: 600px"></div>
+<div id="latest"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js" integrity="sha256-j1Aj4cWdqKW14YC7Hav1HCCdvLGSAkP/wF5HBUc7nf0=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.8/c3.min.js" integrity="sha256-N10MWEM8r2dC0bw4GafCShV+f23skko9fL5mIGcGd4A=" crossorigin="anonymous"></script>
@@ -62,6 +63,17 @@ const refreshChart = () => {
     .then(resp => resp.json())
     .then(data => {
       tweets = data;
+    })
+    .then(_ => {
+      return fetch(`${BASE_URL}/tweets/latest`);
+    })
+    .then(resp => resp.json())
+    .then(data => {
+      let latestText = "<h3>Latest Tweets</h3>";
+      latestText += "<ul>";
+      data.map(t => latestText += `<li>${t}</li>`);
+      latestText += "</ul>";
+      document.querySelector("#latest").innerHTML = latestText;
     })
     .then(_ => {
       setTimeout(refreshChart, 3000);
