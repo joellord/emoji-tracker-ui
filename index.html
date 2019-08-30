@@ -73,6 +73,8 @@ const refreshChart = () => {
       latestText += "<ul>";
       data.map(t => latestText += `<li>${t}</li>`);
       latestText += "</ul>";
+      let links = latestText.match(/(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?/g);
+      links.map(l => latestText = latestText.replace(l, `<a href='${l}'>${l}</a>`));
       document.querySelector("#latest").innerHTML = latestText;
     })
     .then(_ => {
