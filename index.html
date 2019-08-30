@@ -15,12 +15,14 @@
 <script>
 const BASE_URL = "http://emoji-tracker-emoji-tracker.b9ad.pro-us-east-1.openshiftapps.com";
 
+let tweets = {};
+let sorted = [];
+
 const refreshChart = () => {
   fetch(`${BASE_URL}/emojis`)
     .then(resp => resp.json())
     .then(data => {
-      // sort data for aesthetics
-      let sorted = [];
+      sorted = [];
       for (let emoji in data) {
         sorted.push([emoji, data[emoji]]);
       }
@@ -40,10 +42,27 @@ const refreshChart = () => {
           categories: sorted.map(i => i[0])
         }
       };
+
+      // Only keep the top num 
+      const num = 25;
+      if (sorted.length > num) {
+        const diff = sorted.length - num;
+        sorted.splice(sorted.length - diff, diff);
+        values.splice(values.length - diff, diff);
+        console.log(sorted.length, values.length);
+      }
+
       chart.load({
         categories: sorted.map(i=>i[0]),
         columns: [values]
       });
+    })
+    .then(_ => {
+      return fetch(`${BASE_URL}/tweets`);
+    })
+    .then(resp => resp.json())
+    .then(data => {
+      tweets = data;
     })
     .then(_ => {
       setTimeout(refreshChart, 3000);
@@ -65,6 +84,18 @@ let chart = c3.generate({
     x: {
       type: "category",
       categories: []
+    }
+  },
+  tooltip: {
+    contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
+      let resp = `<table class='c3-tooltip'>`;
+      resp += `<tr><th colspan='2'>Latest Tweeets with ${sorted[d[0].index][0]}</th></tr>`;
+      tweets[sorted[d[0].index][0]].map(tweet => {
+        resp += `<tr><td></td><td>${tweet}</td></tr>`;
+      });
+      resp += `<tr><td colspan='2'>Total Count: ${d[0].value}</td></tr>`;
+      resp += "</table>";
+      return resp;
     }
   },
   size: {
